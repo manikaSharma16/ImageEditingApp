@@ -4,15 +4,74 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/activity_main"
+    android:background="@color/white"
     tools:context=".MainActivity">
 
-    <TextView
+    <!-- Button: to selcet Image from the gallery" -->
+    <Button
+        android:id="@+id/button_select_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="@string/button_select_image_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <!-- Current position: at the top right corner -->
+
+    <!-- Imageview: where the image will be loaded in" -->
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/image_to_edit"
+        android:background="@color/white"
+        android:scaleType="matrix"
+        android:adjustViewBounds="true"
+        app:layout_constraintTop_toBottomOf="@id/button_select_image"
+        app:layout_constraintBottom_toTopOf="@id/app_features"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+    <!-- Current position: below the select image button, and above the app features button (crop, rotate) -->
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/app_features"
+        android:padding="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        app:layout_constraintStart_toStart="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
+        <!-- Position: Last row -->
+
+        <!-- Rotate button -->
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_rotate_image"
+            android:text="@string/rotate_button_content" />
+        <!-- Position: Bottom left corner -->
+
+        <!-- Filler view: spacing between rotate and crop button -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_crop_image"
+            android:text="@string/crop_button_content" />
+        <!-- Position: Bottom right corner -->
+
+    </LinearLayout>
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
