@@ -6,3 +6,7 @@ val appName = "ImageEditingApp"
 val allow = "Allow"
 val deny = "Deny"
 val permissionDenied = "Permission Denied"
+
+// Scaling
+val scaleWithinBounds = true
+val minScaleFactor = 0.5f

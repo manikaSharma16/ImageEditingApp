@@ -2,17 +2,16 @@ package com.example.imageeditingapp.math
 
 import android.graphics.Matrix
 import android.graphics.RectF
+import android.util.Log
+import kotlin.math.hypot
 import kotlin.math.min
 
 object MathUtils {
 
     // Calculate the offset to move the image wrt to
-    fun computeTranslationOffset(imageRectangle: RectF, targetX: Float, targetY: Float): Pair<Float, Float> {
-        val currentX = (imageRectangle.left + imageRectangle.right) / 2f
-        val currentY = (imageRectangle.top + imageRectangle.bottom) / 2f
-
-        val dx = targetX - currentX
-        val dy = targetY - currentY
+    fun computeTranslationOffset(sourceX: Float, sourceY: Float, targetX: Float, targetY: Float): Pair<Float, Float> {
+        val dx = targetX - sourceX
+        val dy = targetY - sourceY
         return dx to dy
     }
 
@@ -24,17 +23,12 @@ object MathUtils {
         return fitImageWithinImageView
     }
 
-    // Perform scaling
-    fun scale(affineMatrix: Matrix, imageRectangle: RectF, viewWidth: Int, viewHeight: Int) {
-        val scalingFactor = calculateImageViewToImageScale(imageRectangle, viewWidth, viewHeight)
-        affineMatrix.postScale(scalingFactor, scalingFactor)
-        affineMatrix.mapRect(imageRectangle)
+    fun currentUniformScale(mat: Matrix, affineMatrixValues: FloatArray): Float {
+        mat.getValues(affineMatrixValues)
+        val a = affineMatrixValues[Matrix.MSCALE_X]
+        val c = affineMatrixValues[Matrix.MSKEW_Y]
+        Log.d("MSCALEX", "a:$a")
+        Log.d("MSKEWX", "c:$c")
+        return hypot(a, c)
     }
-
-    // Perform Translation
-    fun translate(affineMatrix: Matrix, imageRectangle: RectF, dx: Float, dy: Float) {
-        affineMatrix.postTranslate(dx, dy)
-        affineMatrix.mapRect(imageRectangle)
-    }
-
 }
