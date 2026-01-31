@@ -36,7 +36,7 @@ class GalleryManager(
             if (granted) {
                 openGallery()
             } else {
-                Toast.makeText(activity, "Permission Denied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, permissionDenied, Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -67,11 +67,11 @@ class GalleryManager(
         val builder: AlertDialog.Builder = AlertDialog.Builder(activity)
         builder.
             setTitle("Gallery Permission")
-            .setMessage("ImageEditingApp needs access to your gallery to select images")
-            .setPositiveButton("Allow") {  _, _ -> requestPermissionHelper()
+            .setMessage("$appName needs access to your gallery to select images")
+            .setPositiveButton(allow) { _, _ -> requestPermissionHelper()
             }
-            .setNegativeButton("Deny") { _, _ ->
-                Toast.makeText(activity, "Permission Denied", Toast.LENGTH_SHORT).show()
+            .setNegativeButton(deny) { _, _ ->
+                Toast.makeText(activity, permissionDenied, Toast.LENGTH_SHORT).show()
             }
             .setCancelable(false)
 
