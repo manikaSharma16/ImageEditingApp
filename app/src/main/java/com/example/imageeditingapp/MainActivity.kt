@@ -30,12 +30,17 @@ class MainActivity : AppCompatActivity() {
         1. Store the instance of class Gallery Manager for this session
         2. On click of select image button, request permission to open the gallery
         3. Display/Deny depending on the action taken by Gallery Manager
+        4. Normalize (fit the image within the imageview is displayed)
      */
     private fun manageGallery() {
 
         fun displayImage(uri: Uri) {
             binding.imageToEdit.setImageURI(uri)
             binding.appFeatures.visibility = View.VISIBLE
+
+            binding.imageToEdit.post {
+                binding.imageToEdit.normalize()
+            }
         }
 
         galleryManager = GalleryManager(this, { uri -> displayImage(uri) } )
