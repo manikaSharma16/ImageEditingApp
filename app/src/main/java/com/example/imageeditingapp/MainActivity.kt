@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
         OnCreate:
         1. Initialize binding
         2. Display Image on Screen with crop and rotate features
+        3. Control rotation of image
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +24,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         manageGallery()
+        controlImageRotation()
+    }
+
+    /*
+    controlImageRotation: Toggle the slider on click
+     */
+    private fun controlImageRotation() {
+        binding.buttonRotateImage.setOnClickListener {
+            binding.seekbarRotateImage.visibility =
+                if(binding.seekbarRotateImage.visibility == View.VISIBLE)
+                    View.GONE
+                else
+                    View.VISIBLE
+        }
     }
 
     /*

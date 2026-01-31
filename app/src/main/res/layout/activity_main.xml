@@ -33,6 +33,21 @@
         />
     <!-- Current position: below the select image button, and above the app features button (crop, rotate) -->
 
+    <!-- Seek Bar to rotate the image: 360 degree -->
+    <SeekBar
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/seekbar_rotate_image"
+        android:progress="0"
+        android:max="360"
+        android:visibility="gone"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/app_features"
+        app:layout_constraintTop_toBottomOf="@id/image_to_edit" />
+    <!-- Current position: Above the app bar feature" -->
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
