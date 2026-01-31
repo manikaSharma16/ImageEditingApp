@@ -24,11 +24,11 @@
         android:layout_height="0dp"
         android:id="@+id/image_to_edit"
         android:background="@color/white"
-        android:scaleType="matrix"
+        android:scaleType="fitCenter"
         android:adjustViewBounds="true"
         app:layout_constraintTop_toBottomOf="@id/button_select_image"
         app:layout_constraintBottom_toTopOf="@id/app_features"
-        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />
     <!-- Current position: below the select image button, and above the app features button (crop, rotate) -->
