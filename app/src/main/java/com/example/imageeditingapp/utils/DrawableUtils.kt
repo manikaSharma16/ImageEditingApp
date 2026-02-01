@@ -1,4 +1,4 @@
-package Utility
+package com.example.imageeditingapp.utils
 
 import android.graphics.drawable.Drawable
 

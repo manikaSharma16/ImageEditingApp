@@ -1,4 +1,4 @@
-package com.example.imageeditingapp.math
+package com.example.imageeditingapp.utils
 
 import android.graphics.Matrix
 import android.graphics.RectF
