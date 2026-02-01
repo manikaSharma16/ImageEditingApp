@@ -1,7 +1,7 @@
 package com.example.imageeditingapp
 
-import Utility.DrawableUtils
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.util.AttributeSet
@@ -9,7 +9,9 @@ import android.util.Log
 import android.view.ScaleGestureDetector
 import android.widget.SeekBar
 import androidx.appcompat.widget.AppCompatImageView
-import com.example.imageeditingapp.math.MathUtils
+import com.example.imageeditingapp.utils.DrawableUtils
+import com.example.imageeditingapp.utils.MathUtils
+import com.example.imageeditingapp.utils.Visuals
 
 /**
  * AffineImageTransformView: Custom ImageView
@@ -34,6 +36,43 @@ class AffineImageTransformView @JvmOverloads constructor(
     private val scaleDetector = ScaleGestureDetector(context, ScaleDetectorListener())
     private var currentRotationAngle = 0f
 
+    private var isCropModeActive = false // To toggle on press of crop button
+    private var cropRectangle = RectF() // Crop rectangle (reinitialized with every click)
+
+    // Toggle crop mode and redraw the canvas
+    fun switchCropMode() {
+        isCropModeActive = !isCropModeActive
+        invalidate()
+    }
+
+    // Draws a new crop rectangle (with a padding) wrt the bounds of the image, and shades the outer area
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+
+        if (!isCropModeActive) return
+
+        updateImageRectangle()
+
+        val paddingWidth = imageRectangle.width() * cropRectanglePadding
+        val paddingHeight = imageRectangle.height() * cropRectanglePadding
+        cropRectangle.set(
+            imageRectangle.left + paddingWidth,
+            imageRectangle.top + paddingHeight,
+            imageRectangle.right - paddingWidth,
+            imageRectangle.bottom - paddingHeight
+        )
+
+        Crop().cropRectanglePaint(cropRectangle, canvas)
+    }
+
+    // To update image rectangle after every operation
+    private fun updateImageRectangle() {
+        val drawable = drawable ?: return
+        val temp = RectF(0f, 0f, drawable.intrinsicWidth.toFloat(), drawable.intrinsicHeight.toFloat())
+        imageMatrix.mapRect(temp)
+        imageRectangle.set(temp)
+    }
+
     init {
         setOnTouchListener { _, event ->
             scaleDetector.onTouchEvent(event)
@@ -52,7 +91,7 @@ class AffineImageTransformView @JvmOverloads constructor(
     fun normalize() {
         val image = drawable
 
-        if(!DrawableUtils.hasImageAndLayout(image, width, height))
+        if (!DrawableUtils.hasImageAndLayout(image, width, height))
             return
 
         val (imageWidth, imageHeight) = DrawableUtils.getImageSize(image) ?: return
@@ -81,7 +120,8 @@ class AffineImageTransformView @JvmOverloads constructor(
         Log.d("IMAGEBOUNDS", "W:${imageRectangle.width()}, H:${imageRectangle.height()},L:${imageRectangle.left} T:${imageRectangle.top} R:${imageRectangle.right} B:${imageRectangle.bottom}")
     }
 
-    private inner class ScaleDetectorListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+    private inner class ScaleDetectorListener :
+        ScaleGestureDetector.SimpleOnScaleGestureListener() {
 
         /*
         * Scale the image wrt origin and translate back to the source (center between the fingers)
@@ -98,6 +138,7 @@ class AffineImageTransformView @JvmOverloads constructor(
             Log.d("IMAGE", "Current Scale:$currentScale")
 
             performScaling(detector, currentScale)
+            updateImageRectangle()
 
             logBounds()
             return true
@@ -131,6 +172,7 @@ class AffineImageTransformView @JvmOverloads constructor(
                 currentRotationAngle = destinationRotationAngle
 
                 performRotation(deltaRotation)
+                updateImageRectangle()
             }
         }
 
@@ -149,5 +191,28 @@ class AffineImageTransformView @JvmOverloads constructor(
             affineMatrix.mapRect(imageRectangle)
             imageMatrix = affineMatrix
         }
+    }
+
+    /*
+    On draw functionalities of crop rectangle:
+        1. Coloring the rectangle and the outer area
+     */
+    inner class Crop{
+        fun cropRectanglePaint(cropRectangle: RectF, canvas: Canvas) {
+
+            canvas.drawRect(cropRectangle, Visuals.edgeColor)
+
+            val outerRectangles = arrayOf(
+                RectF(0f, 0f, width.toFloat(), cropRectangle.top),
+                RectF(0f, cropRectangle.bottom, width.toFloat(), height.toFloat()),
+                RectF(0f, cropRectangle.top, cropRectangle.left, cropRectangle.bottom),
+                RectF(cropRectangle.right, cropRectangle.top, width.toFloat(), cropRectangle.bottom)
+            )
+
+            outerRectangles.forEach { rectangle ->
+                canvas.drawRect(rectangle, Visuals.shadeColor)
+            }
+        }
+
     }
 }

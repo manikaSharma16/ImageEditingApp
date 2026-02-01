@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
         1. Initialize binding
         2. Display Image on Screen with crop and rotate features
         3. Control rotation of image
+        4. Control crop feature with crop button
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +26,13 @@ class MainActivity : AppCompatActivity() {
 
         manageGallery()
         controlImageRotation()
+        controlImageCrop()
+    }
+
+    private fun controlImageCrop() {
+        binding.buttonCropImage.setOnClickListener {
+            binding.imageToEdit.switchCropMode()
+        }
     }
 
     /*
