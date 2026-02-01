@@ -97,18 +97,21 @@ class AffineImageTransformView @JvmOverloads constructor(
             val currentScale = detector.scaleFactor
             Log.d("IMAGE", "Current Scale:$currentScale")
 
-            affineMatrix.set(imageMatrix)
+            performScaling(detector, currentScale)
 
+            logBounds()
+            return true
+        }
+
+        private fun performScaling(detector: ScaleGestureDetector, currentScale: Float) {
+
+            affineMatrix.set(imageMatrix)
             affineMatrix.postTranslate(-detector.focusX, -detector.focusY)
             affineMatrix.postScale(currentScale, currentScale)
             affineMatrix.postTranslate(detector.focusX, detector.focusY)
 
             affineMatrix.mapRect(imageRectangle)
-
             imageMatrix = affineMatrix
-
-            logBounds()
-            return true
         }
     }
 
@@ -127,20 +130,24 @@ class AffineImageTransformView @JvmOverloads constructor(
                 val deltaRotation = destinationRotationAngle - currentRotationAngle
                 currentRotationAngle = destinationRotationAngle
 
-                affineMatrix.set(imageMatrix)
-
-                val sourceX = width / 2f
-                val sourceY = height / 2f
-                affineMatrix.postTranslate(-sourceX, -sourceY)
-                affineMatrix.postRotate(deltaRotation)
-                affineMatrix.postTranslate(sourceX, sourceY)
-
-                affineMatrix.mapRect(imageRectangle)
-                imageMatrix = affineMatrix
+                performRotation(deltaRotation)
             }
         }
 
         override fun onStartTrackingTouch(seekBar: SeekBar?) {}
         override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+
+        fun performRotation(rotationAngle: Float) {
+            val sourceX = width / 2f
+            val sourceY = height / 2f
+
+            affineMatrix.set(imageMatrix)
+            affineMatrix.postTranslate(-sourceX, -sourceY)
+            affineMatrix.postRotate(rotationAngle)
+            affineMatrix.postTranslate(sourceX, sourceY)
+
+            affineMatrix.mapRect(imageRectangle)
+            imageMatrix = affineMatrix
+        }
     }
 }
