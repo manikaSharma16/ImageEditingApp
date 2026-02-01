@@ -302,6 +302,10 @@ class AffineImageTransformView @JvmOverloads constructor(
         /*
         resizeCropRectangle:
             resize the crop rectangle from the current selected edge, while respecting the bounds
+            left <= right - minWidth
+            right >= left + minWidth
+            top <= bottom - minHeight
+            bottom >= top + minHeight
          */
         fun resizeCropRectangle(dx: Float, dy: Float) {
 
@@ -344,7 +348,23 @@ class AffineImageTransformView @JvmOverloads constructor(
                 else -> {}
             }
 
-            cropRectangle.intersect(imageRectangle)
+            updateCropRectWithImageConstraints()
+        }
+
+        /*
+        Ensuring the crop rectangle cannot resize beyond the image
+            left >= image.left
+            top >= image.top
+            right <= image.right
+            bottom <= image.bottom
+         */
+        private fun updateCropRectWithImageConstraints() {
+            cropRectangle.set(
+                cropRectangle.left.coerceAtLeast(imageRectangle.left),
+                cropRectangle.top.coerceAtLeast(imageRectangle.top),
+                cropRectangle.right.coerceAtMost(imageRectangle.right),
+                cropRectangle.bottom.coerceAtMost(imageRectangle.bottom)
+            )
         }
     }
 }
