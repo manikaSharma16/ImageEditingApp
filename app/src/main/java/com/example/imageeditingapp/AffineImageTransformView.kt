@@ -6,11 +6,15 @@ import android.graphics.Matrix
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.Log
+import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.widget.SeekBar
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.imageeditingapp.utils.DrawableUtils
 import com.example.imageeditingapp.utils.MathUtils
+import com.example.imageeditingapp.utils.MathUtils.isWithinThreshold
+import com.example.imageeditingapp.utils.MathUtils.updateEdgeAtMinimum
+import com.example.imageeditingapp.utils.MathUtils.updateEdgeMaximum
 import com.example.imageeditingapp.utils.Visuals
 
 /**
@@ -38,10 +42,63 @@ class AffineImageTransformView @JvmOverloads constructor(
 
     private var isCropModeActive = false // To toggle on press of crop button
     private var cropRectangle = RectF() // Crop rectangle (reinitialized with every click)
+    private var cropRectangleInitialized = false // To check if the cropRectangle has been initialized
+    private var cropRectangleControlPointEdge = ACTIVECROPEDGE.NONE // The current edge to resize from
+    private var curTouchX = 0f // Current coordinates by touch
+    private var curTouchY = 0f
+    private var tempCropRectangle = RectF()
+
+    /*
+    override on touch:
+    1. Zoom: Allow always
+    2. Crop:
+        2.a: On touch: If the finger touches the edge of crop rectangle, get the control point edge
+        2.b: On move: If the finger moves, resize the crop rectangle from the control point edge
+     */
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+
+        scaleDetector.onTouchEvent(event) // Delegate all events to ScaleGestureDetector Class
+
+        if (!isCropModeActive) return true
+
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> { // On-Finger-Touch
+                cropRectangleControlPointEdge = Crop().getCropRecCurrentCPoint(event.x, event.y)
+                if (cropRectangleControlPointEdge != ACTIVECROPEDGE.NONE) {
+                    curTouchX = event.x
+                    curTouchY = event.y
+                    tempCropRectangle.set(cropRectangle)
+                    return true
+                }
+            }
+
+            MotionEvent.ACTION_MOVE -> {
+                if (cropRectangleControlPointEdge != ACTIVECROPEDGE.NONE) { // On-Finger-Move
+                    val dx = event.x - curTouchX
+                    val dy = event.y - curTouchY
+                    Crop().resizeCropRectangle(dx, dy)
+                    invalidate()
+                    return true
+                }
+            }
+
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                cropRectangleControlPointEdge = ACTIVECROPEDGE.NONE
+            }
+        }
+
+        return true
+    }
 
     // Toggle crop mode and redraw the canvas
     fun switchCropMode() {
         isCropModeActive = !isCropModeActive
+
+        if (!isCropModeActive) {
+            cropRectangleInitialized = false
+            cropRectangleControlPointEdge = ACTIVECROPEDGE.NONE
+        }
+
         invalidate()
     }
 
@@ -53,14 +110,9 @@ class AffineImageTransformView @JvmOverloads constructor(
 
         updateImageRectangle()
 
-        val paddingWidth = imageRectangle.width() * cropRectanglePadding
-        val paddingHeight = imageRectangle.height() * cropRectanglePadding
-        cropRectangle.set(
-            imageRectangle.left + paddingWidth,
-            imageRectangle.top + paddingHeight,
-            imageRectangle.right - paddingWidth,
-            imageRectangle.bottom - paddingHeight
-        )
+        if (!cropRectangleInitialized) {
+            Crop().initializeCropRectangle()
+        }
 
         Crop().cropRectanglePaint(cropRectangle, canvas)
     }
@@ -71,13 +123,6 @@ class AffineImageTransformView @JvmOverloads constructor(
         val temp = RectF(0f, 0f, drawable.intrinsicWidth.toFloat(), drawable.intrinsicHeight.toFloat())
         imageMatrix.mapRect(temp)
         imageRectangle.set(temp)
-    }
-
-    init {
-        setOnTouchListener { _, event ->
-            scaleDetector.onTouchEvent(event)
-            true
-        } // Delegate all events to ScaleGestureDtector Class
     }
 
     /*
@@ -193,11 +238,9 @@ class AffineImageTransformView @JvmOverloads constructor(
         }
     }
 
-    /*
-    On draw functionalities of crop rectangle:
-        1. Coloring the rectangle and the outer area
-     */
     inner class Crop{
+
+        // Coloring the rectangle and the outer area
         fun cropRectanglePaint(cropRectangle: RectF, canvas: Canvas) {
 
             canvas.drawRect(cropRectangle, Visuals.edgeColor)
@@ -214,5 +257,94 @@ class AffineImageTransformView @JvmOverloads constructor(
             }
         }
 
+        // Initialize crop rectangle to be of the same size as the image
+        fun initializeCropRectangle() {
+            val paddingWidth = imageRectangle.width() * cropRectanglePadding
+            val paddingHeight = imageRectangle.height() * cropRectanglePadding
+
+            cropRectangle.set(
+                imageRectangle.left + paddingWidth,
+                imageRectangle.top + paddingHeight,
+                imageRectangle.right - paddingWidth,
+                imageRectangle.bottom - paddingHeight
+            )
+
+            cropRectangleInitialized = true
+        }
+
+        /*
+        getCropRectangleCurrentControlPoint:
+            Get the coordinate on the cropRectangle being touched by the finger, if any
+         */
+        fun getCropRecCurrentCPoint(x: Float, y: Float): ACTIVECROPEDGE {
+
+            if (!cropRectangleInitialized)
+                return ACTIVECROPEDGE.NONE
+
+            val isLeftEdgeTouched = isWithinThreshold(x, cropRectangle.left, touchTolerance)
+            val isRightEdgeTouched = isWithinThreshold(x, cropRectangle.right, touchTolerance)
+            val isTopEdgeTouched = isWithinThreshold(y, cropRectangle.top, touchTolerance)
+            val isBottomEdgeTouched = isWithinThreshold(y, cropRectangle.bottom, touchTolerance)
+
+            return when {
+                isTopEdgeTouched && isLeftEdgeTouched -> ACTIVECROPEDGE.TOP_LEFT
+                isTopEdgeTouched && isRightEdgeTouched -> ACTIVECROPEDGE.TOP_RIGHT
+                isBottomEdgeTouched && isLeftEdgeTouched -> ACTIVECROPEDGE.BOTTOM_LEFT
+                isBottomEdgeTouched && isRightEdgeTouched -> ACTIVECROPEDGE.BOTTOM_RIGHT
+                isTopEdgeTouched -> ACTIVECROPEDGE.TOP
+                isBottomEdgeTouched -> ACTIVECROPEDGE.BOTTOM
+                isLeftEdgeTouched -> ACTIVECROPEDGE.LEFT
+                isRightEdgeTouched -> ACTIVECROPEDGE.RIGHT
+                else -> ACTIVECROPEDGE.NONE
+            }
+        }
+
+        /*
+        resizeCropRectangle:
+            resize the crop rectangle from the current selected edge, while respecting the bounds
+         */
+        fun resizeCropRectangle(dx: Float, dy: Float) {
+
+            cropRectangle.set(tempCropRectangle)
+
+            when (cropRectangleControlPointEdge) {
+
+                ACTIVECROPEDGE.LEFT ->
+                    cropRectangle.left = updateEdgeMaximum(tempCropRectangle.left, dx, tempCropRectangle.right)
+
+                ACTIVECROPEDGE.RIGHT ->
+                    cropRectangle.right = updateEdgeAtMinimum(tempCropRectangle.right, dx, tempCropRectangle.left)
+
+                ACTIVECROPEDGE.TOP ->
+                    cropRectangle.top = updateEdgeMaximum(tempCropRectangle.top, dy, tempCropRectangle.bottom)
+
+                ACTIVECROPEDGE.BOTTOM ->
+                    cropRectangle.bottom = updateEdgeAtMinimum(tempCropRectangle.bottom, dy, tempCropRectangle.top)
+
+                ACTIVECROPEDGE.TOP_LEFT -> {
+                    cropRectangle.left = updateEdgeMaximum(tempCropRectangle.left, dx, tempCropRectangle.right)
+                    cropRectangle.top = updateEdgeMaximum(tempCropRectangle.top, dy, tempCropRectangle.bottom)
+                }
+
+                ACTIVECROPEDGE.TOP_RIGHT -> {
+                    cropRectangle.right = updateEdgeAtMinimum(tempCropRectangle.right, dx, tempCropRectangle.left)
+                    cropRectangle.top = updateEdgeMaximum(tempCropRectangle.top, dy, tempCropRectangle.bottom)
+                }
+
+                ACTIVECROPEDGE.BOTTOM_LEFT -> {
+                    cropRectangle.left = updateEdgeMaximum(tempCropRectangle.left, dx, tempCropRectangle.right)
+                    cropRectangle.bottom = updateEdgeAtMinimum(tempCropRectangle.bottom, dy, tempCropRectangle.top)
+                }
+
+                ACTIVECROPEDGE.BOTTOM_RIGHT -> {
+                    cropRectangle.right = updateEdgeAtMinimum(tempCropRectangle.right, dx, tempCropRectangle.left)
+                    cropRectangle.bottom = updateEdgeAtMinimum(tempCropRectangle.bottom, dy, tempCropRectangle.top)
+                }
+
+                else -> {}
+            }
+
+            cropRectangle.intersect(imageRectangle)
+        }
     }
 }

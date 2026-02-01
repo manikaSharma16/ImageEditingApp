@@ -3,6 +3,8 @@ package com.example.imageeditingapp.utils
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.util.Log
+import com.example.imageeditingapp.minCropRectangleHeightWidth
+import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.min
 
@@ -30,5 +32,31 @@ object MathUtils {
         Log.d("MSCALEX", "a:$a")
         Log.d("MSKEWX", "c:$c")
         return hypot(a, c)
+    }
+
+    fun isWithinThreshold(source: Float, destination: Float, threshold: Float): Boolean {
+        if( abs(source - destination) < threshold )
+            return true
+        return false
+    }
+
+    fun updateEdgeMaximum(source: Float, change: Float, maxLimit: Float): Float {
+        val destination = source + change
+        val sourceMaxLimit = maxLimit - minCropRectangleHeightWidth
+
+        if (destination > sourceMaxLimit)
+            return sourceMaxLimit
+        else
+            return destination
+    }
+
+    fun updateEdgeAtMinimum(source: Float, change: Float, minLimit: Float): Float {
+        val destination = source + change
+        val sourceMinLimit = minLimit + minCropRectangleHeightWidth
+
+        if (destination < sourceMinLimit)
+            return sourceMinLimit
+        else
+            return destination
     }
 }
