@@ -7,6 +7,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.Log
 import android.view.ScaleGestureDetector
+import android.widget.SeekBar
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.imageeditingapp.math.MathUtils
 
@@ -27,10 +28,11 @@ class AffineImageTransformView @JvmOverloads constructor(
 ) : AppCompatImageView(context, attrs) {
 
     private val affineMatrix = Matrix() // 3x3 Affine matrix to perform scaling, skewing, translation
-    val imageRectangle = RectF() // Image bounds after transformation
+    var imageRectangle = RectF() // Image bounds after transformation
     private val affineMatrixValues = FloatArray(9)
 
     private val scaleDetector = ScaleGestureDetector(context, ScaleDetectorListener())
+    private var currentRotationAngle = 0f
 
     init {
         setOnTouchListener { _, event ->
@@ -110,4 +112,35 @@ class AffineImageTransformView @JvmOverloads constructor(
         }
     }
 
+    inner class RotationSliderListener : SeekBar.OnSeekBarChangeListener {
+
+        override fun onProgressChanged(
+            seekBar: SeekBar?,
+            rotationAngle: Int,
+            fromUser: Boolean
+        ) {
+            if (fromUser) {
+                if (!DrawableUtils.hasImageAndLayout(drawable, width, height))
+                    return
+
+                val destinationRotationAngle = rotationAngle.toFloat()
+                val deltaRotation = destinationRotationAngle - currentRotationAngle
+                currentRotationAngle = destinationRotationAngle
+
+                affineMatrix.set(imageMatrix)
+
+                val sourceX = width / 2f
+                val sourceY = height / 2f
+                affineMatrix.postTranslate(-sourceX, -sourceY)
+                affineMatrix.postRotate(deltaRotation)
+                affineMatrix.postTranslate(sourceX, sourceY)
+
+                affineMatrix.mapRect(imageRectangle)
+                imageMatrix = affineMatrix
+            }
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+    }
 }

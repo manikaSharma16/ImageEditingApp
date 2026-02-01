@@ -33,11 +33,15 @@ class MainActivity : AppCompatActivity() {
     private fun controlImageRotation() {
         binding.buttonRotateImage.setOnClickListener {
             binding.seekbarRotateImage.visibility =
-                if(binding.seekbarRotateImage.visibility == View.VISIBLE)
+                if (binding.seekbarRotateImage.visibility == View.VISIBLE)
                     View.GONE
                 else
                     View.VISIBLE
         }
+
+        binding.seekbarRotateImage.setOnSeekBarChangeListener(
+            binding.imageToEdit.RotationSliderListener()
+        )
     }
 
     /*
