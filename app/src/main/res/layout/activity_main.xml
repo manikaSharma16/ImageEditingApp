@@ -38,7 +38,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:id="@+id/seekbar_rotate_image"
-        android:progress="0"
+        android:progress="180"
         android:max="360"
         android:visibility="gone"
         android:layout_marginBottom="10dp"
