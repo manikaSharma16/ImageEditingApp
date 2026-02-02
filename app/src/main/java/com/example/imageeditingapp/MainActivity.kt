@@ -10,6 +10,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var galleryManager: GalleryManager
+    private lateinit var rotationHelper: RotationHelper
 
     /*
         OnCreate:
@@ -39,6 +40,8 @@ class MainActivity : AppCompatActivity() {
     controlImageRotation: Toggle the slider on click
      */
     private fun controlImageRotation() {
+        rotationHelper = RotationHelper(binding.imageToEdit, binding.seekbarRotateImage)
+
         binding.buttonRotateImage.setOnClickListener {
             binding.seekbarRotateImage.visibility =
                 if (binding.seekbarRotateImage.visibility == View.VISIBLE)
@@ -46,10 +49,6 @@ class MainActivity : AppCompatActivity() {
                 else
                     View.VISIBLE
         }
-
-        binding.seekbarRotateImage.setOnSeekBarChangeListener(
-            binding.imageToEdit.RotationSliderListener()
-        )
     }
 
     /*
@@ -65,10 +64,10 @@ class MainActivity : AppCompatActivity() {
             binding.imageToEdit.setImageURI(uri)
             binding.appFeatures.visibility = View.VISIBLE
             binding.seekbarRotateImage.progress = 0
-            binding.imageToEdit.RotationSliderListener().performRotation(0f)
+            rotationHelper.performRotation(0f)
 
             binding.imageToEdit.post {
-                binding.imageToEdit.normalize()
+                binding.imageToEdit.initializeImage()
             }
         }
 
