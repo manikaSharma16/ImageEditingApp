@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         fun displayImage(uri: Uri) {
             binding.imageToEdit.setImageURI(uri)
             binding.appFeatures.visibility = View.VISIBLE
-            binding.seekbarRotateImage.progress = 0
+            binding.seekbarRotateImage.progress = 180
             rotationHelper.performRotation(0f)
 
             binding.imageToEdit.post {
