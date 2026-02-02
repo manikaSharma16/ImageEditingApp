@@ -21,5 +21,5 @@ enum class ACTIVECROPEDGE {
     NONE
 }
 
-val touchTolerance = 50f
-val minCropRectangleHeightWidth = 100f
+val touchTolerance = 40f
+val minCropRectangleHeightWidth = 1f
