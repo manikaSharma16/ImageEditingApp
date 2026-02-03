@@ -143,14 +143,27 @@ class AffineImageTransformView @JvmOverloads constructor(
     // To update image rectangle after every operation
     fun updateImageRectangle() {
         val drawable = drawable ?: return
-        val temp = RectF(0f, 0f, drawable.intrinsicWidth.toFloat(), drawable.intrinsicHeight.toFloat())
-        imageMatrix.mapRect(temp)
-        imageRectangle.set(temp)
+        imageRectangle.set(
+            0f, 0f,
+            drawable.intrinsicWidth.toFloat(),
+            drawable.intrinsicHeight.toFloat()
+        )
+        imageMatrix.mapRect(imageRectangle)
     }
 
     fun applyAffineTranformOnImage() {
         affineMatrix.mapRect(imageRectangle)
         imageMatrix = affineMatrix
+    }
+
+    fun isImageCoverCropRectangle(
+        imageRectangle: RectF,
+        cropRectangle: RectF
+    ): Boolean {
+        return imageRectangle.left <= cropRectangle.left &&
+                imageRectangle.top <= cropRectangle.top &&
+                imageRectangle.right >= cropRectangle.right &&
+                imageRectangle.bottom >= cropRectangle.bottom
     }
 
     fun logBounds() {
@@ -177,8 +190,5 @@ class AffineImageTransformView @JvmOverloads constructor(
 
         affineMatrix.set(imageMatrix)
         affineMatrix.postTranslate(dx, dy)
-
-        imageMatrix = affineMatrix
-        updateImageRectangle()
     }
 }
