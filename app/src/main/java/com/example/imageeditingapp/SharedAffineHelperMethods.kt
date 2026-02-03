@@ -21,6 +21,9 @@ class SharedAffineHelperMethods(private val baseView: AffineImageTransformView) 
         imageRectangle: RectF,
         cropRectangle: RectF
     ): Boolean {
+
+        baseView.updateImageRectangle()
+
         return imageRectangle.left <= cropRectangle.left &&
                 imageRectangle.top <= cropRectangle.top &&
                 imageRectangle.right >= cropRectangle.right &&

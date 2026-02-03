@@ -7,7 +7,7 @@ class PanHelper(private val baseView: AffineImageTransformView) {
     private var prevTouchY = 0f
 
     // Translate by the drag
-    fun handlePan(event: MotionEvent): Boolean {
+    fun performPan(event: MotionEvent): Boolean {
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> { // On-Finger-Touch
                 prevTouchX = event.x
