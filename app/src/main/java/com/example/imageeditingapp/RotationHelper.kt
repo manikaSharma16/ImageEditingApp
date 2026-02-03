@@ -18,13 +18,11 @@ class RotationHelper(
         val sourceX = baseView.width / 2f
         val sourceY = baseView.height / 2f
 
-        val matrix = baseView.affineMatrix
-        matrix.postTranslate(-sourceX, -sourceY)
-        matrix.postRotate(rotationAngle)
-        matrix.postTranslate(sourceX, sourceY)
+        baseView.imageMatrix.postTranslate(-sourceX, -sourceY)
+        baseView.imageMatrix.postRotate(rotationAngle)
+        baseView.imageMatrix.postTranslate(sourceX, sourceY)
 
-        matrix.mapRect(baseView.imageRectangle)
-        baseView.imageMatrix = matrix
+        baseView.imageMatrix.mapRect(baseView.imageRectangle)
         baseView.invalidate()
     }
 

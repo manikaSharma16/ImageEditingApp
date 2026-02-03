@@ -26,7 +26,8 @@ class ImageInitializerHelper(
     fun fitImageToView() {
         val scalingFactor = MathUtils.calculateImageViewToImageScale(baseView.imageRectangle, baseView.width, baseView.height)
         baseView.affineMatrix.postScale(scalingFactor, scalingFactor)
-        baseView.applyAffineTranformOnImage()
+        baseView.affineMatrix.mapRect(baseView.imageRectangle)
+        baseView.imageMatrix = baseView.affineMatrix
 
         val targetX = baseView.width / 2f
         val targetY = baseView.height / 2f
@@ -35,6 +36,7 @@ class ImageInitializerHelper(
         val (dx, dy) = MathUtils.computeTranslationOffset(sourceX, sourceY, targetX, targetY)
         baseView.affineMatrix.postTranslate(dx, dy)
 
-        baseView.applyAffineTranformOnImage()
+        baseView.affineMatrix.mapRect(baseView.imageRectangle)
+        baseView.imageMatrix = baseView.affineMatrix
     }
 }

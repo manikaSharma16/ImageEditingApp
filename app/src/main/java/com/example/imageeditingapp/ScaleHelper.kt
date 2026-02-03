@@ -40,28 +40,27 @@ class ScaleHelper(
             Log.d("IMAGE", "Current Scale:$currentScale")
 
             if (baseView.cropRectangleInitialized) {
-                val tempAffineMatrix = Matrix()
+                val tempImageMatrix = Matrix()
                 val tempImageRectangle = RectF()
 
-                tempAffineMatrix.set(baseView.affineMatrix)
-                performScaling(tempAffineMatrix, detector, currentScale)
+                tempImageMatrix.set(baseView.imageMatrix)
+                performScaling(tempImageMatrix, detector, currentScale)
                 tempImageRectangle.set(
                     0f,
                     0f,
                     drawable.intrinsicWidth.toFloat(),
                     drawable.intrinsicHeight.toFloat()
                 )
-                tempAffineMatrix.mapRect(tempImageRectangle)
+                tempImageMatrix.mapRect(tempImageRectangle)
 
                 if (!baseView.isImageCoverCropRectangle(tempImageRectangle, baseView.cropRectangle))
                         return true
             }
 
-            performScaling(baseView.affineMatrix, detector, currentScale)
+            performScaling(baseView.imageMatrix, detector, currentScale)
             if (baseView.cropRectangleInitialized)
                 baseView.constraintCropRectToImage()
 
-            baseView.imageMatrix.set(baseView.affineMatrix)
             baseView.invalidate()
             baseView.logBounds()
 
@@ -76,13 +75,13 @@ class ScaleHelper(
         * 3. Translate to focus point
         */
         private fun performScaling(
-            affineMatrix: Matrix,
+            imageMatrix: Matrix,
             detector: ScaleGestureDetector,
             currentScale: Float
         ) {
-            affineMatrix.postTranslate(-detector.focusX, -detector.focusY)
-            affineMatrix.postScale(currentScale, currentScale)
-            affineMatrix.postTranslate(detector.focusX, detector.focusY)
+            imageMatrix.postTranslate(-detector.focusX, -detector.focusY)
+            imageMatrix.postScale(currentScale, currentScale)
+            imageMatrix.postTranslate(detector.focusX, detector.focusY)
         }
     }
 }
