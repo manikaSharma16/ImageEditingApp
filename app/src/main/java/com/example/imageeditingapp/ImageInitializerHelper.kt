@@ -16,6 +16,26 @@ class ImageInitializerHelper(
     }
 
     /*
+    initializeImage: Initialize variables
+        1. reset image variables:
+                1.a: affine matrix = I3
+                2.a: image rectangle: 4 corner bound of image
+        2. fit image within the view
+        3. reset crop variables
+     */
+    fun initializeImage() {
+        val image = baseView.drawable
+        if (!DrawableUtils.hasImageAndLayout(image, baseView.width, baseView.height))
+            return
+
+        resetImageVariables(image)
+        fitImageToView()
+        baseView.resetCropProperties()
+
+        baseView.logBounds()
+    }
+
+    /*
      * Fit the image within the ImageView and perform centering
      *
      * 1. Initialize affine matrix M = I3
