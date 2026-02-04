@@ -68,3 +68,7 @@ $$
 
 ### Remark on the previous operations
 The same logic used for rescaling the image to fit the cropped rectangle within the rotated image can be used in the zooming and panning operations with rotation. Here, instead of checking the edge constraints, we transform the basis of the corner points and check whether they are bounded within the edges of the image.
+
+## Tech Stack
+
+Platform and language: Android, Kotlin
