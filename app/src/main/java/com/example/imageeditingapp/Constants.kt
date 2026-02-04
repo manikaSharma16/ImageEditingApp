@@ -23,3 +23,6 @@ enum class ACTIVECROPEDGE {
 
 val touchTolerance = 40f
 val minCropRectangleHeightWidth = 50f
+
+const val scaleStep = 1.005f
+const val maxScaleIterations = 100

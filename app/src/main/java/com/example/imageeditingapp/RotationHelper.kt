@@ -19,15 +19,13 @@ class RotationHelper(
         val sourceX = baseView.width / 2f
         val sourceY = baseView.height / 2f
 
-        if (baseView.isCropModeActive) {
-            val res = canRotate(rotationAngle, sourceX, sourceY)
-            if (!res)
-                return
-        }
-
         baseView.imageMatrix.postTranslate(-sourceX, -sourceY)
         baseView.imageMatrix.postRotate(rotationAngle)
         baseView.imageMatrix.postTranslate(sourceX, sourceY)
+
+        if (baseView.isCropModeActive) {
+            scaleImageToCoverCrop()
+        }
 
         baseView.invalidate()
     }
@@ -40,6 +38,21 @@ class RotationHelper(
         tempImageMatrix.postTranslate(sourceX, sourceY)
 
         return baseView.isImageCoverCropRectangle(tempImageMatrix)
+    }
+
+    private fun scaleImageToCoverCrop() {
+        if (baseView.isImageCoverCropRectangle(baseView.imageMatrix))
+            return
+
+        val centerX = baseView.width / 2f
+        val centerY = baseView.height / 2f
+
+        for (i in 0 until maxScaleIterations) {
+            if (baseView.isImageCoverCropRectangle(baseView.imageMatrix))
+                break
+
+            baseView.imageMatrix.postScale(scaleStep, scaleStep, centerX, centerY)
+        }
     }
 
     fun setupSeekBarListener() {
