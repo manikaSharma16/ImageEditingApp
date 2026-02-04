@@ -1,6 +1,7 @@
 package com.example.imageeditingapp
 
 import android.graphics.Canvas
+import android.graphics.Matrix
 import android.graphics.RectF
 import android.view.MotionEvent
 import com.example.imageeditingapp.utils.MathUtils.isWithinThreshold
@@ -50,10 +51,11 @@ class CropHelper(private val baseView: AffineImageTransformView) {
                 if (cropRectangleControlPointEdge != ACTIVECROPEDGE.NONE) {
                     resizeCropRectangle(dx, dy)
                 } else {
-                    baseView.imageMatrix.postTranslate(dx, dy)
+                    var tempImageMatrix = Matrix(baseView.imageMatrix)
+                    tempImageMatrix.postTranslate(dx, dy)
 
-                    if (!baseView.isImageCoverCropRectangle(baseView.imageRectangle, baseView.cropRectangle)) {
-                        baseView.imageMatrix.postTranslate(-dx, -dy)
+                    if (baseView.isImageCoverCropRectangle(tempImageMatrix)) {
+                        baseView.imageMatrix.postTranslate(dx, dy)
                     }
 
                     prevTouchX = event.x

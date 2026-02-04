@@ -1,5 +1,6 @@
 package com.example.imageeditingapp
 
+import android.graphics.Matrix
 import android.graphics.RectF
 import android.util.Log
 
@@ -18,17 +19,52 @@ class SharedAffineHelperMethods(private val baseView: AffineImageTransformView) 
 
     // Check if image covers crop rectangle
     fun isImageCoverCropRectangle(
-        imageRectangle: RectF,
-        cropRectangle: RectF
+        im: Matrix
     ): Boolean {
+        val drawable = baseView.drawable ?: return false
 
-        baseView.updateImageRectangle()
+        val inverseMatrix = Matrix()
+        if (!im.invert(inverseMatrix))
+            return false
 
-        return imageRectangle.left <= cropRectangle.left &&
-                imageRectangle.top <= cropRectangle.top &&
-                imageRectangle.right >= cropRectangle.right &&
-                imageRectangle.bottom >= cropRectangle.bottom
+        val cropRectangleCorners = floatArrayOf(
+            baseView.cropRectangle.left, baseView.cropRectangle.top,
+            baseView.cropRectangle.right, baseView.cropRectangle.top,
+            baseView.cropRectangle.right, baseView.cropRectangle.bottom,
+            baseView.cropRectangle.left, baseView.cropRectangle.bottom
+        )
+
+        inverseMatrix.mapPoints(cropRectangleCorners)
+
+        val tempImageCornersWorldSpace = RectF(
+            0f, 0f,
+            drawable.intrinsicWidth.toFloat(),
+            drawable.intrinsicHeight.toFloat()
+        )
+
+        for (i in cropRectangleCorners.indices step 2) {
+            val x = cropRectangleCorners[i]
+            val y = cropRectangleCorners[i + 1]
+
+            if (!tempImageCornersWorldSpace.contains(x, y))
+                return false
+        }
+
+        return true
     }
+
+//    fun isImageCoverCropRectangle(
+//        imageRectangle: RectF,
+//        cropRectangle: RectF
+//    ): Boolean {
+//
+//        baseView.updateImageRectangle()
+//
+//        return imageRectangle.left <= cropRectangle.left &&
+//                imageRectangle.top <= cropRectangle.top &&
+//                imageRectangle.right >= cropRectangle.right &&
+//                imageRectangle.bottom >= cropRectangle.bottom
+//    }
 
     fun logBounds() {
         Log.d("IMAGEVIEWBOUNDS", "L:$baseView.left T:$baseView.top R:$baseView.right B:$baseView.bottom")

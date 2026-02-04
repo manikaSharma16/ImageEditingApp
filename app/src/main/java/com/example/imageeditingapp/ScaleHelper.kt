@@ -53,8 +53,9 @@ class ScaleHelper(
                 )
                 tempImageMatrix.mapRect(tempImageRectangle)
 
-                if (!baseView.isImageCoverCropRectangle(tempImageRectangle, baseView.cropRectangle))
-                        return true
+                if (!baseView.isImageCoverCropRectangle(tempImageMatrix)) {
+                    return true
+                }
             }
 
             performScaling(baseView.imageMatrix, detector, currentScale)

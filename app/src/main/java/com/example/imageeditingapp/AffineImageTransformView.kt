@@ -79,11 +79,17 @@ class AffineImageTransformView @JvmOverloads constructor(
         sharedAffineHelperMethods.updateImageRectangle()
     }
 
+//    fun isImageCoverCropRectangle(
+//            imageRectangle: RectF,
+//            cropRectangle: RectF
+//        ): Boolean {
+//            return sharedAffineHelperMethods.isImageCoverCropRectangle(imageRectangle, cropRectangle)
+//    }
+
     fun isImageCoverCropRectangle(
-            imageRectangle: RectF,
-            cropRectangle: RectF
-        ): Boolean {
-            return sharedAffineHelperMethods.isImageCoverCropRectangle(imageRectangle, cropRectangle)
+        imageMatrix: Matrix
+    ): Boolean {
+        return sharedAffineHelperMethods.isImageCoverCropRectangle(imageMatrix)
     }
 
     fun logBounds() {

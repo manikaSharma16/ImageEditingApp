@@ -1,5 +1,6 @@
 package com.example.imageeditingapp
 
+import android.graphics.Matrix
 import android.widget.SeekBar
 import com.example.imageeditingapp.utils.DrawableUtils
 
@@ -18,12 +19,27 @@ class RotationHelper(
         val sourceX = baseView.width / 2f
         val sourceY = baseView.height / 2f
 
+        if (baseView.isCropModeActive) {
+            val res = canRotate(rotationAngle, sourceX, sourceY)
+            if (!res)
+                return
+        }
+
         baseView.imageMatrix.postTranslate(-sourceX, -sourceY)
         baseView.imageMatrix.postRotate(rotationAngle)
         baseView.imageMatrix.postTranslate(sourceX, sourceY)
 
-        baseView.imageMatrix.mapRect(baseView.imageRectangle)
         baseView.invalidate()
+    }
+
+    fun canRotate(rotationAngle: Float, sourceX: Float, sourceY: Float): Boolean {
+        val tempImageMatrix = Matrix()
+        tempImageMatrix.set(baseView.imageMatrix)
+        tempImageMatrix.postTranslate(-sourceX, -sourceY)
+        tempImageMatrix.postRotate(rotationAngle)
+        tempImageMatrix.postTranslate(sourceX, sourceY)
+
+        return baseView.isImageCoverCropRectangle(tempImageMatrix)
     }
 
     fun setupSeekBarListener() {
