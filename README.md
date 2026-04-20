@@ -3,7 +3,7 @@
 ## Cropping Functionalities
 The project is divided into three distinct functionalities involved in cropping an image using the tool. They are as follows:
 
-### Resizing the image and crop rectangle:
+#### Resizing the image and crop rectangle:
 Resizing an image and reshaping the cropping rectangle is one of the fundamental features required for any image editing tool. The resizing image feature can be implemented using a magnification, which is done using a scaling variable (positive scalar).
 
 
