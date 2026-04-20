@@ -8,7 +8,7 @@ Resizing an image and reshaping the cropping rectangle is one of the fundamental
 
 
 The scaling must be with respect to the focal point on the screen, where the user performs the scaling. This can be easily implemented using the normalized scaling method, in which first we translate the focal point to the origin, then we scale it, and then re-translate the focal point. Mathematically, it is given by,
-$$ P_{scaled} = s_c(P - p_f) + p_f $$
+$$P_{scaled} = s_c(P - p_f) + p_f$$
 
 The reshaping of the crop rectangle is implemented by moving the edges of the rectangle based on the user inputs.
 
