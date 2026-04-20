@@ -1,9 +1,7 @@
-# ImageEditingApp
+# ImageEditingApp: A computer vision application focused on spatial and projective image transformations.
 
-# Complex Interactions Assignment
 ## Cropping Functionalities
-The assignment is divided into three distinct functionalities involved in cropping an image using the tool. They are as follows:
-
+The project is divided into three distinct functionalities involved in cropping an image using the tool. They are as follows:
 
 ### Resizing the image and crop rectangle:
 Resizing an image and reshaping the cropping rectangle is one of the fundamental features required for any image editing tool. The resizing image feature can be implemented using a magnification, which is done using a scaling variable (positive scalar).
@@ -25,9 +23,9 @@ The preliminary approach to solve this is to impose edge-based constraints. Howe
 
 ### Moving the image
 This functionality is referred to as panning, and it can be implemented using a shift operation, as given below.
-$$
-P_{pan} = P + \Delta P
-$$
+
+$$P_{pan} = P + \Delta P$$
+
 The same edge constraint can be used in this operation to limit the image's edges from crossing over the cropped rectangle's edges. In case of rotation, this logic needs further improvement.
 
 
